@@ -1,0 +1,4 @@
+ID,businessPartnerId,policy_ID,status,riskScore,riskExplanation,appliedOn
+a2000001-0000-0000-0000-000000000001,1000001,f1000001-0000-0000-0000-000000000001,approved,22,Low risk customer with stable profile.,2024-01-15
+a2000001-0000-0000-0000-000000000002,1000002,f1000001-0000-0000-0000-000000000002,review,61,Medium risk due to incomplete company data.,2024-02-20
+a2000001-0000-0000-0000-000000000003,1000003,f1000001-0000-0000-0000-000000000003,rejected,88,High risk profile flagged for further review.,2024-03-05
