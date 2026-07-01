@@ -5,6 +5,8 @@
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
+    "@sap-cloud-sdk/connectivity": "^3",
+    "@sap-cloud-sdk/http-client": "^3",
     "@sap/cds": "^9",
     "express": "^4"
   },
@@ -18,5 +20,16 @@
   "scripts": {
     "start": "cds-serve",
     "watch": "cds watch"
+  },
+  "cds": {
+    "requires": {
+      "API_BUSINESS_PARTNER": {
+        "kind": "odata-v2",
+        "model": "srv/external/API_BUSINESS_PARTNER",
+        "credentials": {
+          "url": "https://sandbox.api.sap.com/s4hanacloud/sap/opu/odata/sap/API_BUSINESS_PARTNER"
+        }
+      }
+    }
   }
 }
