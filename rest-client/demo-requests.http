@@ -1,0 +1,3 @@
+# Get all Policy Applications (local mock data)
+GET http://localhost:4004/odata/v4/insurance/PolicyApplications?$expand=policy
+Accept: application/json
