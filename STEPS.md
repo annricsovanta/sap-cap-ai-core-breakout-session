@@ -1,7 +1,7 @@
-# Presenter Guide — BP AI Enrichment
+# Live Coding Session — BP AI Enrichment
 
-Live coding session. Build the project step by step from scratch.
-Each section maps to a branch (`step/01` → `step/04`) — use the branches as checkpoints if something breaks.
+Build the project step by step from scratch.
+Each section maps to a branch (`step/01` → `step/03`) — use the branches as checkpoints if something breaks.
 
 ---
 
@@ -12,7 +12,8 @@ Make sure you have ready:
 For...
 - **Step 1 & 2:** Node.js and VS Code (see first requirement in the README), with the REST Client extension installed. Terminal and VS Code open.
 - **Step 3:** SAP API Business Hub API key (`BP_API_KEY`)
-- **Step 4:** AI Core service key JSON (`AICORE_SERVICE_KEY`), AI Core deployment ID (`AI_CORE_DEPLOYMENT_ID`) and resource group
+
+Step 4 will be covered in a live demo, without coding along.
 
 ---
 
