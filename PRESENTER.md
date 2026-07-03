@@ -8,11 +8,11 @@ Each section maps to a branch (`step/01` → `step/04`) — use the branches as 
 ## Before you start
 
 Make sure you have ready:
-- SAP API Business Hub API key (`BP_API_KEY`)
-- AI Core service key JSON (`AICORE_SERVICE_KEY`)
-- AI Core deployment ID (`AI_CORE_DEPLOYMENT_ID`) and resource group
 
-Terminal open, VS Code open, REST client extension installed.
+For...
+- **Step 1 & 2:** Node.js and VS Code (see first requirement in the README), with the REST Client extension installed. Terminal and VS Code open.
+- **Step 3:** SAP API Business Hub API key (`BP_API_KEY`)
+- **Step 4:** AI Core service key JSON (`AICORE_SERVICE_KEY`), AI Core deployment ID (`AI_CORE_DEPLOYMENT_ID`) and resource group
 
 ---
 
@@ -280,18 +280,47 @@ service BusinessPartnerService {
 
 ### Create the prompt template
 
-Create `srv/prompts/predict-industry.js`:
+Create `srv/prompts/predict-industry.json`:
 
-```js
-module.exports = (bp) =>
-    `Based on the following business partner data, predict the most fitting industry as a human-readable label (e.g. "Banking", "Automotive", "Retail", "Healthcare", "Technology").
-Return a JSON object with two fields: "industry": a short human-readable industry label and "reasoning": one sentence explaining why you chose this industry. Business Partner data:
-Full Name: ${bp.BusinessPartnerFullName},
-Type: ${bp.BusinessPartnerType},
-Category: ${bp.BusinessPartnerCategory},
-Legal Form: ${bp.LegalForm},
-Country: ${bp.NameCountry}.
-Respond with valid JSON only. Do not respond with text.`;
+```json
+{
+    "role": "You are a business data expert who classifies companies into industries.",
+    "task": "Assign the business partner data provided in context to exactly one of the industries listed in industries.",
+    "rules": [
+        "Respond only with a valid JSON object according to outputFormat, with no additional text.",
+        "For industry, choose exclusively a value from the industries list.",
+        "If the data is ambiguous, choose the most likely industry and briefly justify it in reasoning."
+    ],
+    "industries": [
+        "Financial Services",
+        "Manufacturing & Automotive",
+        "Retail & Consumer Goods",
+        "Healthcare",
+        "Technology & Telecommunications",
+        "Energy & Utilities",
+        "Logistics & Transportation",
+        "Public Sector & Other"
+    ],
+    "context": {
+        "fullName": "{{BusinessPartnerFullName}}",
+        "type": "{{BusinessPartnerType}}",
+        "category": "{{BusinessPartnerCategory}}",
+        "legalForm": "{{LegalForm}}",
+        "country": "{{NameCountry}}"
+    },
+    "outputFormat": {
+        "type": "json",
+        "schema": {
+            "industry": "string – one of the values from industries",
+            "reasoning": "string – one sentence explaining the choice of industry"
+        }
+    },
+    "outputExample": {
+        "industry": "Manufacturing & Automotive",
+        "reasoning": "The company name and legal form suggest an automotive supplier."
+    }
+}
+
 ```
 
 ### Update the service handler
@@ -301,7 +330,7 @@ Extend the service handler with the `predictIndustry` function. It imports the p
 Replace `srv/business-partner-service.js`:
 
 ```js
-const predictIndustryPrompt = require('./prompts/predict-industry');
+const predictIndustryPrompt = require('./prompts/predict-industry.json');
 
 module.exports = async (srv) => {
     const { OrchestrationClient } = await import('@sap-ai-sdk/orchestration');
@@ -335,10 +364,16 @@ module.exports = async (srv) => {
             { resourceGroup: process.env.AI_CORE_RESOURCE_GROUP ?? 'default' }
         );
 
+        const context = Object.fromEntries(
+            Object.entries(predictIndustryPrompt.context).map(([key, placeholder]) => [
+                key,
+                placeholder.replace(/{{(\w+)}}/, (_, field) => bp[field] ?? ''),
+            ])
+        );
+
         const response = await client.chatCompletion({
             messages: [
-                { role: 'system', content: 'You are a business data expert who classifies companies into industries.' },
-                { role: 'user', content: predictIndustryPrompt(bp) },
+                { role: 'user', content: JSON.stringify({ ...predictIndustryPrompt, context }) },
             ],
             response_format: { type: 'json_object' },
         });
