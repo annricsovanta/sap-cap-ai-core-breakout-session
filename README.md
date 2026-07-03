@@ -13,7 +13,7 @@ Before you start, make sure you have:
 - Node.js, cds and VS Code (with the REST Client extension)
 - An SAP S-user with access to the SAP API Business Hub
 
-The full step-by-step tutorial for building the project is in [PRESENTER.md](PRESENTER.md).
+The full step-by-step tutorial for building the project is in [STEPS.md](STEPS.md).
 
 If you get stuck along the way, each step has its own branch with the finished intermediate state — just check one out:
 
