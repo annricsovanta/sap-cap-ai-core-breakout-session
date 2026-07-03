@@ -1,23 +1,29 @@
 # BP AI Enrichment
 
-SAP CAP demo showing AI-powered Business Partner masterdata enrichment using SAP AI Core and GPT-4o.
+SAP CAP demo showing AI-powered Business Partner masterdata enrichment using SAP AI Core and GPT-5.
 
 ## What it does
 
 Exposes a `predictIndustry` action on Business Partners that fetches a BP from the SAP S/4HANA Business Partner API and uses an LLM via SAP AI Core to predict the missing industry — returning a human-readable label and a reasoning sentence.
 
-## Setup
+## Prerequisites & Setup
 
-1. Copy `.env.example` to `.env` and fill in your credentials
-2. `npm install`
-3. `cds watch`
+Before you start, make sure you have:
 
-## Project structure
+- Node.js, cds and VS Code (with the REST Client extension)
+- An SAP S-user with access to the SAP API Business Hub
 
-| Folder | Content |
-|--------|---------|
-| `db/` | Domain model and sample data |
-| `srv/` | CAP services and handlers |
-| `srv/external/` | SAP Business Partner API definition |
-| `srv/prompts/` | LLM prompt templates |
-| `rest-client/` | HTTP test requests |
+The full step-by-step tutorial for building the project is in [PRESENTER.md](PRESENTER.md).
+
+If you get stuck along the way, each step has its own branch with the finished intermediate state — just check one out:
+
+| Step | Branch |
+|---|---|
+| 1 — CAP Project Setup | `step/01-cap-setup` |
+| 2 — Insurance Service | `step/02-insurance-service` |
+| 3 — Business Partner External Service | `step/03-bp-external-service` |
+| 4 — AI Industry Prediction | `step/04-ai-enrichment` |
+
+```sh
+git checkout step/03-bp-external-service
+```
