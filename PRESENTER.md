@@ -192,6 +192,14 @@ The `credentials` block pointing to the S/4 sandbox is not generated automatical
 npm add @sap-cloud-sdk/http-client@3.x @sap-cloud-sdk/util@3.x @sap-cloud-sdk/connectivity@3.x @sap-cloud-sdk/resilience@3.x
 ```
 
+### Start your app again
+
+Verify if it is starting without errors.
+
+```sh
+cds watch
+```
+
 ### Create the service definition
 
 Create `srv/business-partner-service.cds`:
