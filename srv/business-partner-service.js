@@ -1,4 +1,4 @@
-const predictIndustryPrompt = require('./prompts/predict-industry');
+const predictIndustryPrompt = require('./prompts/predict-industry.json');
 
 module.exports = async (srv) => {
     const { OrchestrationClient } = await import('@sap-ai-sdk/orchestration');
@@ -26,16 +26,22 @@ module.exports = async (srv) => {
         const client = new OrchestrationClient(
             {
                 promptTemplating: {
-                    model: { name: 'gpt-4o', version: 'latest' },
+                    model: { name: 'gpt-5', version: 'latest' },
                 },
             },
             { resourceGroup: process.env.AI_CORE_RESOURCE_GROUP ?? 'default' }
         );
 
+        const context = Object.fromEntries(
+            Object.entries(predictIndustryPrompt.context).map(([key, placeholder]) => [
+                key,
+                placeholder.replace(/{{(\w+)}}/, (_, field) => bp[field] ?? ''),
+            ])
+        );
+
         const response = await client.chatCompletion({
             messages: [
-                { role: 'system', content: 'You are a business data expert who classifies companies into industries.' },
-                { role: 'user', content: predictIndustryPrompt(bp) },
+                { role: 'user', content: JSON.stringify({ ...predictIndustryPrompt, context }) },
             ],
             response_format: { type: 'json_object' },
         });

@@ -23,12 +23,13 @@ Terminal open, VS Code open, REST client extension installed.
 ```sh
 cds init bp-ai-enrichment
 cd bp-ai-enrichment
+cds add nodejs
 npm install
 ```
 
 ### Create the domain model
 
-Open `db/data-model.cds` and replace its contents:
+Create the file `db/data-model.cds` add the following content:
 
 ```cds
 namespace insurance;
@@ -131,11 +132,18 @@ Run the request in the REST client. You should see three policy applications wit
 
 ### Set up credentials
 
-Create `.env` in the project root:
+Create `.env` in the project root (ensure that the env file is added to your gitignore when using git):
 
 ```
 BP_API_KEY=your-api-key-here
 ```
+
+### Download the API specification
+
+1. In the SAP Business Accelerator Hub, go to the Business Partner API (A2X): https://api.sap.com/api/API_BUSINESS_PARTNER/overview
+2. In the Overview, select **API Specification**.
+3. From the list of files, download the OData EDMX file. The file name when downloaded is `API_BUSINESS_PARTNER.edmx`.
+4. Place the downloaded file in the project root folder.
 
 ### Import the external API
 
@@ -154,6 +162,21 @@ It also adds this to `package.json` automatically:
   "requires": {
     "API_BUSINESS_PARTNER": {
       "kind": "odata-v2",
+      "model": "srv/external/API_BUSINESS_PARTNER"
+    }
+  }
+}
+```
+
+### Add the sandbox credentials
+
+The `credentials` block pointing to the S/4 sandbox is not generated automatically — add it by hand to the `API_BUSINESS_PARTNER` entry in `package.json`:
+
+```json
+"cds": {
+  "requires": {
+    "API_BUSINESS_PARTNER": {
+      "kind": "odata-v2",
       "model": "srv/external/API_BUSINESS_PARTNER",
       "credentials": {
         "url": "https://sandbox.api.sap.com/s4hanacloud/sap/opu/odata/sap/API_BUSINESS_PARTNER"
@@ -166,7 +189,7 @@ It also adds this to `package.json` automatically:
 ### Install the SAP Cloud SDK
 
 ```sh
-npm add @sap-cloud-sdk/connectivity @sap-cloud-sdk/http-client
+npm add @sap-cloud-sdk/http-client@3.x @sap-cloud-sdk/util@3.x @sap-cloud-sdk/connectivity@3.x @sap-cloud-sdk/resilience@3.x
 ```
 
 ### Create the service definition
@@ -240,6 +263,8 @@ npm add @sap-ai-sdk/orchestration
 
 ### Update the service definition
 
+Add a `predictIndustry` action to the `BusinessPartners` entity.
+
 Update `srv/business-partner-service.cds`:
 
 ```cds
@@ -270,6 +295,8 @@ Respond with valid JSON only. Do not respond with text.`;
 ```
 
 ### Update the service handler
+
+Extend the service handler with the `predictIndustry` function. It imports the prompt template and uses it to send a request to AI Core.
 
 Replace `srv/business-partner-service.js`:
 
@@ -302,7 +329,7 @@ module.exports = async (srv) => {
         const client = new OrchestrationClient(
             {
                 promptTemplating: {
-                    model: { name: 'gpt-4o', version: 'latest' },
+                    model: { name: 'gpt-5', version: 'latest' },
                 },
             },
             { resourceGroup: process.env.AI_CORE_RESOURCE_GROUP ?? 'default' }
@@ -338,9 +365,9 @@ Content-Type: application/json
 
 ### Test it
 
-1. First run the GET to find a real Business Partner ID from the sandbox
-2. Replace `1000001` in the POST with that ID
-3. Run the POST — observe the returned `industry` and `reasoning`
+1. Run the POST request with `1000001` as a real Business Partner ID in the sandbox.
+2. Observe the returned `industry` and `reasoning`.
+3. Optionally, run the GET request first to browse other real Business Partner IDs and try the POST with one of those instead.
 
 ---
 
